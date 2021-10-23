@@ -1,0 +1,72 @@
+﻿@model IEnumerable<Web.Models.ReturPembelian>
+
+@{
+    ViewBag.Title = "Retur Pembelian";
+    int PembelianID = ViewBag.PEMBELIANID;
+}
+
+<h2>Daftar Retur Pembelian</h2>
+
+<table style="width:100%;">
+    <tr>
+        <th>No Retur</th>
+        <th>Tgl. Transaksi</th>
+        <th>Tgl. Bayar</th>
+        <th>Total</th>
+        <th>Keterangan</th>
+        <th>Status</th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    bool is_telat = item.StatusTransaksi == (int)Web.Models.StatusTransaksi.MenungguPembayaran;
+    string style = is_telat ? "style=color:red;" : "";
+    <tr @style>
+        <td>
+            @item.ReturPembelianID.ToString().PadLeft(6, '0')
+        </td>
+        <td>
+            @item.Tanggal.ToString("dd MMM yyyy")
+        </td>
+        <td>
+            @(item.TanggalBayar.HasValue ? item.TanggalBayar.Value.ToString("dd MMM yyyy") : "")
+        </td>
+        <td class="display_numeric">
+            @Html.DisplayFor(modelItem => item.Total)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Keterangan)
+        </td>
+        <td>
+            @switch(item.StatusTransaksi)
+            {
+                case (int)Web.Models.StatusTransaksi.MenungguPembayaran : 
+                    <text>Menunggu Pembayaran</text>
+                    break;
+                case (int)Web.Models.StatusTransaksi.Lunas : 
+                    <text>Lunas</text>
+                    break;
+                case (int)Web.Models.StatusTransaksi.Dibatalkan : 
+                    <text>Dibatalkan</text>
+                    break;
+                case (int)Web.Models.StatusTransaksi.Diputihkan : 
+                    <text>Diputihkan</text>
+                    break;
+            }
+        </td>
+        <td>
+            @if (item.StatusTransaksi == (int)Web.Models.StatusTransaksi.MenungguPembayaran)
+            {
+                @Html.ActionLink("Lihat Detail", "Edit", new { id=item.ReturPembelianID, fid=PembelianID }, new { @class="layer" })
+            }
+            else
+            {
+                @Html.ActionLink("Lihat Detail", "Details", new { id=item.ReturPembelianID, fid=PembelianID }, new { @class="layer" })
+            }
+        </td>
+    </tr>
+}
+</table>
+<p>
+    <a href="/Pembelian/Details/@PembelianID" class="layer">Back to Faktur</a>
+</p>

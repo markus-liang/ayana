@@ -1,0 +1,136 @@
+﻿@model Web.Models.Penjualan
+
+@{
+    ViewBag.Title = "Pembayaran";
+}
+
+<h2>Pembayaran</h2>
+
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+
+@using (Html.BeginForm()) {
+    @Html.ValidationSummary(true)
+    <fieldset>
+        <legend>Summary</legend>
+
+        @Html.HiddenFor(model => model.PenjualanID)
+        @Html.HiddenFor(model=>model.Tanggal)
+        @Html.HiddenFor(model=>model.CustomerID)
+        @Html.HiddenFor(model=>model.JatuhTempo)
+        @Html.HiddenFor(model=>model.Keterangan)
+        @Html.HiddenFor(model=>model.Total)
+        @Html.HiddenFor(model=>model.UserName)
+
+        <table class="tabelpolos">
+            <tr>
+                <td>Nomor Faktur</td>
+                <td>: @Model.PenjualanID.ToString().PadLeft(6, '0')
+                      <!--&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[ <a href="#" onclick="batal_click()" class="layer" >Batalkan</a> ]-->
+                </td>
+            </tr>
+            <tr>
+                <td>@Html.LabelFor(model => model.Tanggal)</td>
+                <td>: @Model.Tanggal.ToString("dd MMM yyyy")</td>
+            </tr>
+            <tr>
+                <td>@Html.LabelFor(model => model.CustomerID, "Customer")</td>
+                <td>: @Html.DisplayFor(model => model.Customer.Nama)</td>
+            </tr>
+            <tr>
+                <td>@Html.LabelFor(model => model.JatuhTempo)</td>
+                <td>: @Model.JatuhTempo.ToString("dd MMM yyyy")</td>
+            </tr>
+            <tr>
+                <td>@Html.LabelFor(model => model.Keterangan)</td>
+                <td>: @Html.DisplayFor(model => model.Keterangan)</td>
+            </tr>
+        </table>
+        <table>
+            <thead>
+            <tr>
+                <th>Barang</th>
+                <th>Jumlah</th>
+                <th>Harga</th>
+                <th>Subtotal</th>
+            </tr>
+            </thead>
+            <tbody>
+        @foreach (Web.Models.PenjualanDetail detail in Model.PenjualanDetails)
+        {
+            <tr>
+                <td>@detail.Barang.Nama</td>
+                <td class="display_numeric">@detail.Jumlah</td>
+                <td class="display_numeric">@detail.Harga</td>
+                <td class="display_numeric">@{var temp = detail.Harga * detail.Jumlah;} @temp</td>
+            </tr>
+            
+        }
+            </tbody>
+            <tfoot>
+                <tr><td colspan="4">&nbsp;</td></tr>
+                <tr>
+                    <td colspan="3" style="text-align:right;"> Total Harga</td>
+                    <td class="display_numeric"> @Html.DisplayFor(model => model.Total)</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.TipePembayaranID, "TipePembayaran")
+        </div>
+        <div class="editor-field">
+            @Html.DropDownList("TipePembayaranID", null, new { @onchange="jenis_bayar_change();" })
+            @Html.ValidationMessageFor(model => model.TipePembayaranID)
+        </div>
+        <div id="div_kalkulasi" class="editor-field" style="display:none;">
+            <table >
+                <tr>
+                    <td>Pembayaran</td>
+                    <td><input type="text" id="jml_bayar" onchange="nilai_bayar_change()" /></td>
+                </tr>
+                <tr>
+                    <td>Kembalian</td>
+                    <td><div id="jml_kembali" class="display_numeric" style="font-size:x-large;">0</div></td>
+                </tr>
+            </table>
+        </div>
+        <p>
+            @if(ViewBag.ISDAYOPEN)
+            {
+                <input type="button" value="Bayar" onclick="bayar_click()" />
+                <input type="submit" id="btn_submit" value="Bayar" style="display:none;" class="layer" />
+            }
+        </p>
+    </fieldset>
+}
+<script>
+    function bayar_click() {
+        $("#btn_submit").click();
+    }
+
+    function jenis_bayar_change() {
+        if ($("#TipePembayaranID option:selected").text() == "CASH") {
+            $("#div_kalkulasi").show();
+        } else {
+            $("#div_kalkulasi").hide();
+        }
+    }
+
+    function nilai_bayar_change() {
+        var harga = @Model.Total;
+        var bayar = $("#jml_bayar").val();
+        $("#jml_kembali").text(numberWithCommas((bayar - harga) + ""));
+    }
+
+    function batal_click() {
+        window.location.href = "/Penjualan/Delete/@Model.PenjualanID";
+    }
+
+    $(function () {
+        jenis_bayar_change();
+    });
+</script>
+<div>
+    @Html.ActionLink("Back to List", "Index", new { @page = 1 })
+</div>

@@ -1,0 +1,87 @@
+﻿@model Web.Models.Pembelian
+
+@{
+    ViewBag.Title = "Pembatalan Pembelian";
+}
+
+<h3>Anda yakin ingin membatalkan transaksi ini?</h3>
+<fieldset>
+    <legend>Detail Transaksi</legend>
+
+    <table class="tabelpolos">
+        <tr>
+            <td>Nomor Faktur</td>
+            <td>: @Model.PembelianID.ToString().PadLeft(6, '0')</td>
+        </tr>
+        <tr>
+            <td>@Html.LabelFor(model => model.Tanggal)</td>
+            <td>: @Model.Tanggal.ToString("dd MMM yyyy")</td>
+        </tr>
+        <tr>
+            <td>@Html.LabelFor(model => model.SupplierID, "Supplier")</td>
+            <td>: @Html.DisplayFor(model => model.Supplier.Nama)</td>
+        </tr>
+        <tr>
+            <td>@Html.LabelFor(model => model.JatuhTempo)</td>
+            <td>: @Model.JatuhTempo.ToString("dd MMM yyyy")</td>
+        </tr>
+        <tr>
+            <td>@Html.LabelFor(model => model.Keterangan)</td>
+            <td>: @Html.DisplayFor(model => model.Keterangan)</td>
+        </tr>
+        <tr>
+            <td>@Html.LabelFor(model => model.TipePembayaranID)</td>
+            <td>: @Html.DisplayFor(model => model.TipePembayaran.Nama)</td>
+        </tr>
+    </table>
+    <table>
+        <thead>
+        <tr>
+            <th>Barang</th>
+            <th>Jumlah</th>
+            <th>Harga</th>
+            <th>Subtotal</th>
+        </tr>
+        </thead>
+        <tbody>
+    @foreach (Web.Models.PembelianDetail detail in Model.PembelianDetails)
+    {
+        <tr>
+            <td>@detail.Barang.Nama</td>
+            <td>@detail.Jumlah</td>
+            <td class="display_numeric">@detail.Harga</td>
+            <td class="display_numeric">@{var temp = detail.Harga * detail.Jumlah;} @temp</td>
+        </tr>
+            
+    }
+        </tbody>
+        <tfoot>
+            <tr><td colspan="4">&nbsp;</td></tr>
+            <tr>
+                <td colspan="3" style="text-align:right;"> Total Harga</td>
+                <td class="display_numeric"> @Html.DisplayFor(model => model.Total)</td>
+            </tr>
+        </tfoot>
+    </table>
+</fieldset>
+<script>
+    function ya_click() {
+        $("#submit").click();
+    }
+    function tidak_click() {
+        @if (Model.StatusTransaksi == (int)Web.Models.StatusTransaksi.MenungguPembayaran){
+            <text>window.location.href = "/Pembelian/Edit/@Model.PembelianID";</text>
+        }
+        else
+        {
+            <text>window.location.href = "/Pembelian/Details/@Model.PembelianID";</text>
+        }
+    }
+</script>
+@using (Html.BeginForm()) {
+    <p>
+        <input type="button" value="Ya" style="width:80px;" onclick="ya_click()"/>&nbsp;&nbsp;
+        <input type="button" value="Tidak" style="width:80px;" onclick="tidak_click()" class="layer" />
+        <input type="submit" value="Ya" style="width:80px;display:none;" id="submit" class="layer" />
+    </p>
+}

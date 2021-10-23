@@ -1,0 +1,107 @@
+﻿@model Web.Models.Pembelian
+
+@{
+    ViewBag.Title = "Pembayaran";
+    List<Web.Models.ReturPembelianDetail> ReturPembelianDetails = ViewBag.RETURPEMBELIANDETAILS;
+    int total = 0;
+}
+
+<h2>Pembayaran</h2>
+
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+
+@using (Html.BeginForm()) {
+    @Html.ValidationSummary(true)
+    <fieldset>
+        <legend>Summary</legend>
+
+        @Html.HiddenFor(model => model.PembelianID)
+        @Html.HiddenFor(model=>model.Tanggal)
+        @Html.HiddenFor(model=>model.SupplierID)
+        @Html.HiddenFor(model=>model.JatuhTempo)
+        @Html.HiddenFor(model=>model.Keterangan)
+        @Html.HiddenFor(model=>model.Total)
+        @Html.HiddenFor(model=>model.UserName)
+
+        <table class="tabelpolos">
+            <tr>
+                <td>Nomor Faktur</td>
+                <td>: @Model.PembelianID.ToString().PadLeft(6, '0')</td>
+            </tr>
+            <tr>
+                <td>@Html.LabelFor(model => model.Tanggal)</td>
+                <td>: @Model.Tanggal.ToString("dd MMM yyyy")</td>
+            </tr>
+            <tr>
+                <td>@Html.LabelFor(model => model.SupplierID, "Supplier")</td>
+                <td>: @Html.DisplayFor(model => model.Supplier.Nama)</td>
+            </tr>
+            <tr>
+                <td>@Html.LabelFor(model => model.JatuhTempo)</td>
+                <td>: @Model.JatuhTempo.ToString("dd MMM yyyy")</td>
+            </tr>
+            <tr>
+                <td>@Html.LabelFor(model => model.Keterangan)</td>
+                <td>: @Html.DisplayFor(model => model.Keterangan)</td>
+            </tr>
+        </table>
+        <table style="width:60%;">
+            <thead>
+            <tr>
+                <th>Barang</th>
+                <th>Jumlah</th>
+                <th>Retur</th>
+                <th>Harga</th>
+                <th>Subtotal</th>
+            </tr>
+            </thead>
+            <tbody>
+        @foreach (Web.Models.PembelianDetail detail in Model.PembelianDetails)
+        {
+            int jml_retur = ReturPembelianDetails.Where(p => p.BarangID == detail.BarangID).Sum(p => p.Jumlah);
+            int subtotal = detail.Harga * (detail.Jumlah - jml_retur);
+            total += subtotal;
+            <tr>
+                <td>@detail.Barang.Nama</td>
+                <td class="display_numeric">@detail.Jumlah</td>
+                <td class="display_numeric">@jml_retur</td>
+                <td class="display_numeric">@detail.Harga</td>
+                <td class="display_numeric">@subtotal</td>
+            </tr>
+            
+        }
+            </tbody>
+            <tfoot>
+                <tr><td colspan="5">&nbsp;</td></tr>
+                <tr>
+                    <td colspan="4" style="text-align:right;"> Total Harga</td>
+                    <td class="display_numeric"> @total</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.TipePembayaranID, "TipePembayaran")
+        </div>
+        <div class="editor-field">
+            @Html.DropDownList("TipePembayaranID", null, new { })
+            @Html.ValidationMessageFor(model => model.TipePembayaranID)
+        </div>
+        <p>
+            @if(ViewBag.ISDAYOPEN)
+            {
+            <input type="button" value="Bayar" onclick="bayar_click()" />
+            <input type="submit" id="btn_submit" value="Bayar" style="display:none;" />
+            }
+        </p>
+    </fieldset>
+}
+<script>
+    function bayar_click() {
+        $("#btn_submit").click();
+    }
+</script>
+<div>
+    @Html.ActionLink("Back to List", "Index", new { @page = 1 })
+</div>

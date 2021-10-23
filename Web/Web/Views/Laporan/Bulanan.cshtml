@@ -1,0 +1,47 @@
+﻿@model IEnumerable<Web.Models.LaporanBulanan>
+
+@{
+    ViewBag.Title = "Laporan Bulanan";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+
+@using (Html.BeginForm())
+{
+    @Html.ValidationSummary(true)
+    <fieldset>
+        <legend>Laporan Bulanan</legend>
+        <br />
+
+        <table style="width:100%;">
+            <thead>
+                <tr>
+                    <th>Bulan</th>
+                    <th>Penjualan</th>
+                    <th>Penjualan Batal</th>
+                    <th>Pembelian</th>
+                    <th>Pembelian Batal</th>
+                    <th>Penerimaan</th>
+                    <th>Pengeluaran</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(Web.Models.LaporanBulanan bulanan in Model)
+                {
+                    <tr>
+                        <td>@bulanan.Bulan.ToString("MMM yyyy")</td>
+                        <td class="display_numeric">@bulanan.Penjualan</td>
+                        <td class="display_numeric">@bulanan.PenjualanBatal</td>
+                        <td class="display_numeric">@bulanan.Pembelian</td>
+                        <td class="display_numeric">@bulanan.PembelianBatal</td>
+                        <td class="display_numeric">@bulanan.Penerimaan</td>
+                        <td class="display_numeric">@bulanan.Pengeluaran</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </fieldset>
+}

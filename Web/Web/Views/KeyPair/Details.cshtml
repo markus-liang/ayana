@@ -1,0 +1,20 @@
+﻿@model Web.Models.KeyPair
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<fieldset>
+    <legend>KeyPair</legend>
+
+    <div class="display-label">Value</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Value)
+    </div>
+</fieldset>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id=Model.KeyPairID }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

@@ -1,0 +1,130 @@
+﻿@model IEnumerable<Web.Models.Pembelian>
+
+@{
+    ViewBag.Title = "History Pembelian";
+    int numofdata = (int)ViewBag.NUM_OF_DATA;
+    int numofpage = (int)ViewBag.NUM_OF_PAGE;
+    int curpage = (int)ViewBag.CUR_PAGE;
+    int start = (int)ViewBag.START;
+    int end = (int)ViewBag.END;
+
+    System.Collections.Hashtable RETUR = ViewBag.RETUR;
+}
+
+<h2>History Pembelian</h2>
+
+<table style="width:100%;">
+    <tr>
+        <td colspan="12">
+            <table style="width:100%;border:0px;">
+                <tr>
+                    <td style="text-align:center;border:0px;">
+                        @for (int i = 1; i <= numofpage; i++)
+                        {
+                            if(i == curpage){
+                                @Html.ActionLink("[ " + i + " ]", "HistoryPembelian", new { @page = i }, new { @style="text-decoration:none;background-color:#a6e2a6;", @class="layer" });
+                            }else{
+                                @Html.ActionLink("[ " + i + " ]", "HistoryPembelian", new { @page = i }, new { @style = "text-decoration:none;", @class="layer"  });
+                            }
+                        }
+                    </td>
+                    <td style="width:150px;text-align:right;border:0px;">@start - @end dari @numofdata</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <th>No Faktur</th>
+        <th>Tanggal</th>
+        <th>Supplier</th>
+        <th>Jatuh Tempo</th>
+        <th>Tipe Pembayaran</th>
+        <th>Tanggal Bayar</th>
+        <th>SubTotal</th>
+        <th>Retur</th>
+        <th>Total</th>
+        <th>Keterangan</th>
+        <th>Status</th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    bool is_telat = item.JatuhTempo.Date < DateTime.Now.Date && !item.TanggalBayar.HasValue;
+    string style = is_telat ? "style=color:red;" : "";
+    <tr>
+        <td>
+            @item.PembelianID.ToString().PadLeft(6, '0')
+        </td>
+        <td>
+            @item.Tanggal.ToString("dd MMM yyyy")
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Supplier.Nama)
+        </td>
+        <td @style>
+            @item.JatuhTempo.ToString("dd MMM yyyy")
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.TipePembayaran.Nama)
+        </td>
+        <td>
+            @if(item.TanggalBayar.HasValue)
+            {
+                <text>@item.TanggalBayar.Value.ToString("dd MMM yyyy")</text>
+            }
+        </td>
+        <td class="display_numeric">
+            @Html.DisplayFor(modelItem => item.Total)
+        </td>
+        <td class="display_numeric">
+            @RETUR[item.PembelianID]
+        </td>
+        <td class="display_numeric">
+            @(item.Total - (int)RETUR[item.PembelianID])
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Keterangan)
+        </td>
+        <td>
+            @switch(item.StatusTransaksi)
+            {
+                case (int)Web.Models.StatusTransaksi.MenungguPembayaran : 
+                    <text>Menunggu Pembayaran</text>
+                    break;
+                case (int)Web.Models.StatusTransaksi.Lunas : 
+                    <text>Lunas</text>
+                    break;
+                case (int)Web.Models.StatusTransaksi.Dibatalkan : 
+                    <text>Dibatalkan</text>
+                    break;
+                case (int)Web.Models.StatusTransaksi.Diputihkan : 
+                    <text>Diputihkan</text>
+                    break;
+            }
+        </td>
+        <td>
+            @Html.ActionLink("Lihat Detail", "HistoryPembelianDetails", new { id = item.PembelianID }, new { @class="layer" })
+        </td>
+    </tr>
+}
+
+    <tr>
+        <td colspan="12">
+            <table style="width:100%;border:0px;">
+                <tr>
+                    <td style="text-align:center;border:0px;">
+                        @for (int i = 1; i <= numofpage; i++)
+                        {
+                            if(i == curpage){
+                                @Html.ActionLink("[ " + i + " ]", "HistoryPembelian", new { @page = i }, new { @style="text-decoration:none;background-color:#a6e2a6;", @class="layer" });
+                            }else{
+                                @Html.ActionLink("[ " + i + " ]", "HistoryPembelian", new { @page = i }, new { @style = "text-decoration:none;", @class="layer"  });
+                            }
+                        }
+                    </td>
+                    <td style="width:150px;text-align:right;border:0px;">@start - @end dari @numofdata</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>

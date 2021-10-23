@@ -1,0 +1,70 @@
+﻿@model Web.Models.StokAdjust
+
+@{
+    ViewBag.Title = "Stock Adjust";
+    var Barangs = ViewBag.Barangs;
+}
+
+<h2>Stock Adjust</h2>
+
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+
+<script>
+    function real_change(id) {
+        var real = $("#real_" + id).val();
+        var qty = $("#qty_" + id).val();
+        $("#selisih_" + id).val(real-qty);
+    }
+</script>
+
+@using (Html.BeginForm()) {
+    @Html.ValidationSummary(true)
+    <fieldset>
+        <legend>StokAdjust</legend>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Keterangan)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Keterangan)
+            @Html.ValidationMessageFor(model => model.Keterangan)
+        </div>
+
+        <div class="editor-label">
+            Daftar Barang
+        </div>
+        <div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Barang</th>
+                        <th>Stok Data</th>
+                        <th>Stok Real</th>
+                        <th>Selisih</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (Web.Models.Barang barang in Barangs)
+                    {
+                        <tr>
+                            <td>@barang.Nama</td>
+                            <td><input type="text" id="qty_@(barang.BarangID)" value="@barang.Qty" disabled="disabled" /> </td>
+                            <td><input type="number" id="real_@(barang.BarangID)" name="real_@(barang.BarangID)" min="0" value="@barang.Qty" onchange="real_change(@barang.BarangID)" /></td>
+                            <td><input type="text" id="selisih_@(barang.BarangID)" name="selisih_@(barang.BarangID)" value="0" disabled="disabled" /></td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                </tfoot>
+            </table>
+        </div>
+        <p>
+            <input type="submit" value="Create" class="layer" />
+        </p>
+    </fieldset>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index", new { @page=1 }, new { @class="layer" })
+</div>

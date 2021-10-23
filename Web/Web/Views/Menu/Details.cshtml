@@ -1,0 +1,45 @@
+﻿@model Web.Models.Menu
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<fieldset>
+    <legend>Menu</legend>
+
+    <div class="display-label">ParentID</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.ParentID)
+    </div>
+
+    <div class="display-label">Text</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Text)
+    </div>
+
+    <div class="display-label">Controller</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Controller)
+    </div>
+
+    <div class="display-label">Action</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Action)
+    </div>
+
+    <div class="display-label">Params</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Params)
+    </div>
+
+    <div class="display-label">Keterangan</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Keterangan)
+    </div>
+</fieldset>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id=Model.MenuID }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

@@ -1,0 +1,50 @@
+﻿@model IEnumerable<Web.Models.KasKecil>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create", new { }, new { @class="layer" })
+</p>
+<table>
+    <tr>
+        <th>
+            JenisKasKecil
+        </th>
+        <th>
+            Tanggal
+        </th>
+        <th>
+            Total
+        </th>
+        <th>
+            Keterangan
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.JenisKasKecil.Nama)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Tanggal)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Total)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Keterangan)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.KasKecilID }) |
+            @Html.ActionLink("Details", "Details", new { id=item.KasKecilID })
+        </td>
+    </tr>
+}
+
+</table>

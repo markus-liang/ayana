@@ -1,0 +1,318 @@
+﻿@model Web.Models.Pembelian
+
+@{
+    ViewBag.Title = "Pembelian";
+    var Barangs = ViewBag.Barangs;
+    var Suppliers = ViewBag.Suppliers;
+}
+
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery-ui-1.8.20.min.js")" type="text/javascript"></script>
+<link href="@Url.Content("~/Content/themes/base/jquery.ui.all.css")" rel="stylesheet" type="text/css" />
+
+<script>
+    var barangfocused = "";
+    var cnt_belanjaan = 0;
+    var deletedrowindex = new Array();
+    var listoptionbarang = new Array();
+    var listbarang = new Array();
+    var listsupplier = new Array();
+
+    @for (int i = 0; i < @Suppliers.Length; i++)
+    {
+        <text>
+        listsupplier[@i] = {
+            SupplierID : @Suppliers[i].SupplierID,
+            StandarToP : @Suppliers[i].ToP
+        };
+        </text>
+    }
+
+    @for (int i = 0; i < @Barangs.Length; i++)
+    {
+        <text>
+            var option = document.createElement('option');
+            option.value = @Barangs[i].BarangID;
+            option.innerHTML = "@Barangs[i].Nama";
+            listoptionbarang[@i] = option;
+            
+            listbarang[@i] = { 
+                BarangID : @Barangs[i].BarangID,
+                Nama : "@Barangs[i].Nama",
+                HargaBeli : "@Barangs[i].HargaBeli",
+                HargaGrosir : @Barangs[i].HargaGrosir,
+                HargaMinimum : @Barangs[i].HargaMinimum,
+                HargaPriceList : @Barangs[i].HargaPriceList,
+                Qty : @Barangs[i].Qty
+            };
+        </text>
+    }
+
+    function change_stok(rownum){
+        var barang;
+
+        var id = $("#bljkode_" + rownum).val();            
+        barang  = $.grep(listbarang, function(e){ return e.BarangID == id });
+        if(barang.length > 0){
+            $("#bljbarang_" + rownum).val(barang[0].Nama);
+            $("#bljharga_"  + rownum).val(barang[0].HargaBeli);
+        }else{
+            $("#bljbarang_" + rownum).val("");
+            $("#bljharga_"  + rownum).val("");
+        }
+
+        calculate_harga(rownum);
+    }
+
+    function calculate_all(){
+        var deleted;
+
+        if(cnt_belanjaan == deletedrowindex.length){
+            //semua row sudah dihapus
+            $("#Total").val(0);
+            $("#label_total").text(numberWithCommas("0"));
+        }
+        else{
+            for(var i=0; i<cnt_belanjaan; i++){
+                deleted = $.grep(deletedrowindex, function(e){ return e == i; });
+                if(deleted.length == 0){
+                    calculate_harga(i);
+                }
+            }
+        }
+    }
+
+    function calculate_harga(rownum) {
+        var jml;
+        var harga;
+
+        // 1 baris
+        jml = $("#bljjmlpesanan_" + rownum).val();
+        harga = $("#bljharga_" + rownum).val() * jml;
+
+        $("#bljhargakeseluruhan_"+rownum).text(numberWithCommas(harga+""));
+
+        var list_keseluruhan = $("[name^='bljhargakeseluruhan_']");
+        var total = 0;
+        for (var i = 0; i < list_keseluruhan.length; i++) {
+            total = total + (numberWithoutCommas(list_keseluruhan[i].innerText) * 1);
+        }
+        $("#Total").val(total);
+        $("#label_total").text(numberWithCommas(total+""));
+    }
+
+    function filter_change(){
+        var rownum = barangfocused.split('_')[1];
+        var filterstr = $('#filter_text').val();
+        $("#filter_result").empty();
+        $("#filter_result").append($(listoptionbarang).filter(":contains('" + filterstr + "')"));
+
+        $("#btn_filter_ok").prop("disabled", $("#filter_result>option").length == 0);
+    }
+
+    function filter_ok(){
+        var rownum = barangfocused.split('_')[1];
+        $("#" + barangfocused).val($("#filter_result").val());
+        change_stok(rownum);
+        $('#filter_dialog').dialog('close');
+    }
+
+    function myKeyDown(e){
+        if(e.keyIdentifier == "F2")
+        {
+            barangfocused = e.srcElement.id;
+            $('#filter_text').val('');
+            $("#filter_result").empty();
+            $("#btn_filter_ok").prop("disabled", true);
+            filter_change();
+            $('#filter_dialog').dialog('open');
+        }
+        //return false;
+    }
+
+    function focus(idx){
+        lastfocus = idx;
+    }
+
+    function add_belanjaan_row(){
+        $("#belanjaan tbody").append(
+            "<tr id='bljrow_" + cnt_belanjaan + "'>" +
+            "<td>" +
+                "<input id='bljkode_" + cnt_belanjaan + "' name='bljkode_" + cnt_belanjaan + "' type='text' placeholder='Kode' style='width:80px;' onkeydown='return myKeyDown(event)' onkeyup='change_stok(" + cnt_belanjaan + ")' /> " +
+                "<input id='bljbarang_" + cnt_belanjaan + "' name='bljbarang_" + cnt_belanjaan + "' type='text' placeholder='Nama Barang' style='width:300px;' readonly />" +
+            "</td>" +
+            "<td><input  id='bljjmlpesanan_"  + cnt_belanjaan + "' name='bljjmlpesanan_"  + cnt_belanjaan + "' type='number' min='1' value='1' onchange='calculate_harga(" + cnt_belanjaan + ")' style='width:100px;' /></td>" +
+            "<td><input  id='bljharga_" + cnt_belanjaan + "' name='bljharga_" + cnt_belanjaan + "' type='number' step='1000' onchange='calculate_harga(" + cnt_belanjaan + ")' style='width:100px;' /></td>" +
+            "<td><div    id='bljhargakeseluruhan_" + cnt_belanjaan + "' name='bljhargakeseluruhan_" + cnt_belanjaan + "' class='display_numeric'>0</div></td>" +
+            "<td><a href='javascript:void(0);' tabindex='1' onclick='remove_belanjaan_row(" + cnt_belanjaan + ")'>hapus</a></td>" +
+            "</tr>"
+        );
+        $("#bljkode_" + cnt_belanjaan).numeric();
+        $("#bljkode_" + cnt_belanjaan)[0].focus();
+
+        change_stok(cnt_belanjaan);
+
+        cnt_belanjaan++;
+        $("#hid_cnt_belanjaan").val(cnt_belanjaan);
+    }
+
+    function remove_belanjaan_row(id){
+        $("#bljrow_" + id).remove();
+        deletedrowindex[deletedrowindex.length] = id;
+        calculate_all();
+    }
+    
+    function top_change(){
+        if($("#iToP").val() == "0")
+        {
+            $("#datetop").val("CASH");
+        }else{
+            var today = new Date();
+            today = today.setDate(today.getDate() + ($("#iToP").val() * 1));
+            var temp = new Date(today);
+            $("#datetop").val(temp.getDate() + " " + Months[temp.getMonth()] + " " + temp.getFullYear());
+        }
+    }
+
+    function supplier_change(){
+        var supplier = $.grep(listsupplier, function(e){ return e.SupplierID == $("#SupplierID").val(); });
+        $("#iToP").val(supplier[0].StandarToP);
+        top_change();
+    }
+
+    function submit_click(){
+        rows =  $("#belanjaan tbody tr");
+        if(rows.length == 0){
+            alert("Tidak ada data barang yang dibeli.");
+            return;
+        }
+        var item1, item2;
+        for (var i=0; i<rows.length; i++){
+            item1 = $("[name^='bljkode']", rows[i])[0].value;
+            item_name = $("[name^='bljbarang_']", rows[i])[0].value;
+            if(item1.trim() == "" || item_name.trim() == "")
+            {
+                alert("Ada barang yang tidak valid, silahkan periksa kembali.");
+                return;
+            }
+            for(var j=i+1; j<rows.length; j++){
+                item2 = $("[name^='bljkode']", rows[j])[0].value;
+                if(item2.trim() == "")
+                {
+                    alert("Ada kode barang yang tidak valid, silahkan periksa kembali.");
+                    return;
+                }
+                if(item1 == item2){
+                    alert("Ada barang yang sama, silahkan periksa kembali.");
+                    return;
+                }
+            }
+        }
+
+        $("#btn_submit").click();
+    }
+
+    $(function(){
+        supplier_change();
+
+        $('#filter_dialog').dialog({
+            autoOpen: false,
+            draggable: false,
+            resizable: false,
+            width:440,
+            modal: true
+        });
+    });
+</script>
+
+@using (Html.BeginForm()) {
+    @Html.ValidationSummary(true)
+    <fieldset>
+        <legend>Pembelian</legend>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.SupplierID, "Supplier")
+        </div>
+        <div class="editor-field">
+            @Html.DropDownList("SupplierID", null, new {  @onchange="supplier_change()" })
+            @Html.ValidationMessageFor(model => model.SupplierID)
+        </div>
+
+        <div class="editor-label">
+            <label>Term of Payments (hari)</label>
+        </div>
+        <div class="editor-field">
+            <input type="number" id="iToP" name="iToP" class="numeric" value="0" min="0" max="365" onchange="top_change()" />
+            <input type="text" id="datetop" name="datetop" style="width:150px;" value="CASH" disabled="disabled" />
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Keterangan)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Keterangan)
+            @Html.ValidationMessageFor(model => model.Keterangan)
+        </div>
+        
+        <div class="editor-label">
+            Daftar Belanja
+        </div>
+        <div>
+            <table id="belanjaan" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Barang</th>
+                        <th>Jumlah</th>
+                        <th>Harga</th>
+                        <th>Subtotal</th>
+                        <th>&nbsp;</th>
+                     </tr>
+                </thead>
+                <tbody>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" style="text-align:right;">
+                            <div class="editor-label">
+                                @Html.LabelFor(model => model.Total)
+                            </div>
+                        </td>
+                        <td>
+                            <div class="editor-field">
+                                <div id="label_total" class="display_numeric">0</div>
+                                @Html.TextBoxFor(model => model.Total, new { @class="numeric", @readonly="readonly", @style="background-color:rgb(235, 235, 228);display:none;" })
+                                @Html.ValidationMessageFor(model => model.Total)
+                            </div>
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" style="text-align:right;"><input type="button" onclick="add_belanjaan_row();" value="Tambah Barang" /></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <p>
+            <input type="hidden" id="hid_cnt_belanjaan" name="hid_cnt_belanjaan" value="0" />
+            <input type="button" value="Submit" onclick="submit_click()" />
+            <input type="submit" id="btn_submit" value="Submit" style="display:none;" class="layer" />
+        </p>
+    </fieldset>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index", new { @page = 1 }, new { @class="layer" })
+</div>
+
+<div id="filter_dialog">
+    Cari Barang : <input type='text' id='filter_text' style='width:80px;' />
+        <input type="button" value="Cari" onclick="filter_change()" />
+    <br /><br />
+    <label id="filter_number"></label>
+    <select id="filter_result" style="width:400px;" size="20">
+    </select>
+    <br /><br />
+    <input type="button" value="OK" id="btn_filter_ok" onclick="filter_ok()" style="position:relative;width:200px;left:110px;"/>
+</div>

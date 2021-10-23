@@ -1,0 +1,58 @@
+﻿@model Web.Models.StokAdjust
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<fieldset>
+    <legend>StockAdjust</legend>
+
+    <table class="tabelpolos">
+        <tr>
+            <td>Tanggal</td>
+            <td>: @Html.DisplayFor(model => model.Tanggal)</td>
+        </tr>
+        <tr>
+            <td>Username</td>
+            <td>: @Html.DisplayFor(model => model.Username)</td>
+        </tr>
+        <tr>
+            <td>Keterangan</td>
+            <td>: @Html.DisplayFor(model => model.Keterangan)</td>
+        </tr>
+    </table>
+
+    <div class="editor-label">
+        Daftar Barang
+    </div>
+    <div>
+        <table style="width:50%">
+            <thead>
+                <tr>
+                    <th>Barang</th>
+                    <th>Stok Data</th>
+                    <th>Stok Real</th>
+                    <th>Selisih</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (Web.Models.StokAdjustDetail detail in Model.StokAdjustDetails)
+                {
+                    <tr>
+                        <td>@detail.Barang.Nama</td>
+                        <td class="display_numeric">@detail.JumlahDalamData</td>
+                        <td class="display_numeric">@detail.JumlahReal</td>
+                        <td class="display_numeric">@(detail.JumlahReal - detail.JumlahDalamData)</td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+</fieldset>
+<p>
+    @Html.ActionLink("Back to List", "Index", new { @page=1 }, new { @class="layer" })
+</p>

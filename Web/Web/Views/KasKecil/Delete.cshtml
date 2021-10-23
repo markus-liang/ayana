@@ -1,0 +1,40 @@
+﻿@model Web.Models.KasKecil
+
+@{
+    ViewBag.Title = "Cancel";
+}
+
+<h3>Batalkan kas kecil?</h3>
+<fieldset>
+    <legend>KasKecil</legend>
+
+    <table class="tabelpolos">
+        <tr>
+            <td>@Html.LabelFor(model => model.Tanggal)</td>
+            <td>: @Model.Tanggal.ToString("dd-MMM-yyyy")</td>
+        </tr>
+        <tr>
+            <td>@Html.LabelFor(model => model.Keterangan)</td>
+            <td>: @Html.DisplayFor(model => model.Keterangan)</td>
+        </tr>
+        <tr>
+            <td>@Html.LabelFor(model => model.Total)</td>
+            <td>: <div class="display_numeric">@Html.DisplayFor(model => model.Total)</div></td>
+        </tr>
+    </table>
+</fieldset>
+<script>
+    function ya_click() {
+        $("#submit").click();
+    }
+    function tidak_click() {
+        window.location.href = "/KasKecil/Index?page=1";
+    }
+</script>
+@using (Html.BeginForm()) {
+    <p>
+        <input type="button" value="Ya" style="width:80px;" onclick="ya_click()" />&nbsp;&nbsp;
+        <input type="button" value="Tidak" style="width:80px;" onclick="tidak_click()" />
+        <input type="submit" value="Ya" style="width:80px;display:none;" id="submit"/>
+    </p>
+}

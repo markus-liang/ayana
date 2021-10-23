@@ -1,0 +1,30 @@
+﻿@model Web.Models.KasKecil
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<fieldset>
+    <legend>KasKecil</legend>
+
+    <div class="display-label">Tanggal</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Tanggal)
+    </div>
+
+    <div class="display-label">Total</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Total)
+    </div>
+
+    <div class="display-label">Keterangan</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Keterangan)
+    </div>
+</fieldset>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id=Model.KasKecilID }) |
+    @Html.ActionLink("Back to List", "Index", new { page=1 })
+</p>

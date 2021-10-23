@@ -1,0 +1,79 @@
+﻿@model Web.Models.Pembelian
+
+@{
+    ViewBag.Title = "Detail Transaksi";
+    List<Web.Models.ReturPembelianDetail> ReturPembelianDetails = ViewBag.RETURPEMBELIANDETAILS;
+    int total = 0;
+}
+
+<fieldset>
+    <legend>Detail Transaksi</legend>
+
+    <table class="tabelpolos">
+        <tr>
+            <td>Nomor Faktur</td>
+            <td>: @Model.PembelianID.ToString().PadLeft(6, '0')</td>
+        </tr>
+        <tr>
+            <td>@Html.LabelFor(model => model.Tanggal)</td>
+            <td>: @Model.Tanggal.ToString("dd MMM yyyy")</td>
+        </tr>
+        <tr>
+            <td>@Html.LabelFor(model => model.SupplierID, "Supplier")</td>
+            <td>: @Html.DisplayFor(model => model.Supplier.Nama)</td>
+        </tr>
+        <tr>
+            <td>@Html.LabelFor(model => model.JatuhTempo)</td>
+            <td>: @Model.JatuhTempo.ToString("dd MMM yyyy")</td>
+        </tr>
+        <tr>
+            <td>@Html.LabelFor(model => model.Keterangan)</td>
+            <td>: @Html.DisplayFor(model => model.Keterangan)</td>
+        </tr>
+        <tr>
+            <td>@Html.LabelFor(model => model.TipePembayaranID)</td>
+            <td>: @Html.DisplayFor(model => model.TipePembayaran.Nama)</td>
+        </tr>
+        <tr>
+            <td>@Html.LabelFor(model => model.StatusTransaksi)</td>
+            <td>: @Enum.GetName(typeof(Web.Models.StatusTransaksi), Model.StatusTransaksi)</td>
+        </tr>
+    </table>
+    <table style="width:60%;">
+        <thead>
+        <tr>
+            <th>Barang</th>
+            <th>Jumlah</th>
+            <th>Retur</th>
+            <th>Harga</th>
+            <th>Subtotal</th>
+        </tr>
+        </thead>
+        <tbody>
+    @foreach (Web.Models.PembelianDetail detail in Model.PembelianDetails)
+    {
+        int jml_retur = ReturPembelianDetails.Where(p => p.BarangID == detail.BarangID).Sum(p => p.Jumlah);
+        int subtotal = detail.Harga * (detail.Jumlah - jml_retur);
+        total += subtotal;
+        <tr>
+            <td>@detail.Barang.Nama</td>
+            <td>@detail.Jumlah</td>
+            <td>@jml_retur</td>
+            <td class="display_numeric">@detail.Harga</td>
+            <td class="display_numeric">@subtotal</td>
+        </tr>
+            
+    }
+        </tbody>
+        <tfoot>
+            <tr><td colspan="5">&nbsp;</td></tr>
+            <tr>
+                <td colspan="4" style="text-align:right;"> Total Harga</td>
+               <td class="display_numeric"> @total</td>
+             </tr>
+        </tfoot>
+    </table>
+</fieldset>
+<p>
+    @Html.ActionLink("Back to List", "HistoryPembelian", new { @page=1 }, new { @class="layer" })
+</p>

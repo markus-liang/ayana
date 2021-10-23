@@ -1,0 +1,52 @@
+﻿@model IEnumerable<Web.Models.KasKecil>
+
+@{
+    ViewBag.Title = "Kas Kecil";
+}
+
+<h2>Kas Kecil Periode @(Model.Count() > 0 ? Model.First().Tanggal.ToString("dd MMM yyyy") : "") - @(Model.Count() > 0 ? Model.Last().Tanggal.ToString("dd MMM yyyy") : "") </h2>
+
+<table style="width:600px;">
+    <tr>
+        <th>
+            Tanggal
+        </th>
+        <th>
+            Keterangan
+        </th>
+        <th>
+            Debet
+        </th>
+        <th>
+            Kredit
+        </th>
+        <th>
+            Saldo
+        </th>
+    </tr>
+
+@{ int saldo = 0; }
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @item.Tanggal.ToString("dd MMM yyyy")
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Keterangan)
+        </td>
+        <td class="display_numeric">
+            @if(item.JenisKasKecil.Nama == "DEBET") { saldo += (@item.Status ? @item.Total : 0); @item.Total }
+        </td>
+        <td class="display_numeric">
+            @if (item.JenisKasKecil.Nama == "KREDIT"){ saldo -= (@item.Status ? @item.Total : 0); @item.Total }
+        </td>
+        <td class="display_numeric">
+            @saldo
+        </td>
+    </tr>
+}
+</table>
+<br />
+<div>
+    @Html.ActionLink("Back to List", "Periode", "Laporan", new { @page=1 }, new { @class="layer" })
+</div>

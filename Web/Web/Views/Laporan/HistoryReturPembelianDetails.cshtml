@@ -1,0 +1,70 @@
+﻿@model Web.Models.ReturPembelian
+
+@{
+    ViewBag.Title = "Detail Retur Pembelian";
+}
+
+<fieldset>
+    <legend>Detail Retur Pembelian</legend>
+
+    <table class="tabelpolos">
+        <tr>
+            <td>Nomor Retur</td>
+            <td>: @Model.ReturPembelianID.ToString().PadLeft(6, '0')</td>
+        </tr>
+        <tr>
+            <td>Supplier</td>
+            <td>: @Model.Supplier.Nama</td>
+        </tr>
+        <tr>
+            <td>@Html.LabelFor(model => model.Tanggal)</td>
+            <td>: @Model.Tanggal.ToString("dd MMM yyyy")</td>
+        </tr>
+        <tr>
+            <td>@Html.LabelFor(model => model.Keterangan)</td>
+            <td>: @Html.DisplayFor(model => model.Keterangan)</td>
+        </tr>
+    </table>
+    <table style="width:70%;">
+        <thead>
+        <tr>
+            <th>Faktur</th>
+            <th>Barang</th>
+            <th>Jumlah</th>
+            <th>Harga</th>
+            <th>Subtotal</th>
+        </tr>
+        </thead>
+        <tbody>
+    @foreach (Web.Models.ReturPembelianDetail detail in Model.ReturPembelianDetails)
+    {
+        var subtotal = detail.isPaid ? detail.Jumlah * detail.Harga : 0;
+        <tr>
+            <td>@detail.PembelianID.ToString().PadLeft(6, '0')</td>
+            <td>@detail.Barang.Nama</td>
+            <td>@detail.Jumlah</td>
+            <td class="display_numeric">@detail.Harga</td>
+            @if (detail.isPaid)
+            {
+                <td class="display_numeric">@subtotal</td>
+            }
+            else
+            {
+                <td style="text-align:right;"><i>Lunas</i></td>
+            }
+        </tr>
+            
+    }
+        </tbody>
+        <tfoot>
+            <tr><td colspan="5">&nbsp;</td></tr>
+            <tr>
+                <td colspan="4" style="text-align:right;"> Total</td>
+                <td class="display_numeric"> @Html.DisplayFor(model => model.Total)</td>
+            </tr>
+        </tfoot>
+    </table>
+</fieldset>
+<p>
+    @Html.ActionLink("Back to List", "HistoryReturPembelian", new { @page=1 }, new { @class="layer" })
+</p>

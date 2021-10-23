@@ -1,0 +1,69 @@
+﻿@model IEnumerable<Web.Models.RoleMenu>
+
+@{
+    ViewBag.Title = "Index";
+    string selectedRole = (string)ViewBag.selectedRole;
+    string[] Roles = System.Web.Security.Roles.GetAllRoles();
+    List<Web.Models.Menu> Menus = (List<Web.Models.Menu>)ViewBag.Menus;
+    List<Web.Models.RoleMenu> RoleMenus = (List<Web.Models.RoleMenu>)ViewBag.RoleMenus;
+}
+
+<h2>Index</h2>
+
+<p>
+    <a href="/RoleMenu/Edit?roleName=@selectedRole" id="editlink" class="layer">Edit</a>
+</p>
+
+<select id="selrole" onchange="rolechange();">
+    <option value="#">-- Pilih Role --</option>
+    @foreach (string role in Roles)
+    {
+        <option value="@role" @(role == selectedRole ? "selected" : "")>@role</option>
+    }
+</select>
+<br />
+<br />
+<table>
+    <tr>
+        <th>Menu</th>
+        <th>Submenu</th>
+        <th>Is Authorized</th>
+    </tr>
+
+@if(selectedRole != "" && selectedRole != null){
+    foreach (Web.Models.Menu m in Menus) {
+        List<Web.Models.Menu> children = m.getChildren(m.MenuID);
+        <tr>
+            <td>@m.Text</td>
+            <td>&nbsp;</td>
+            <td>
+                @if(RoleMenus.Find(p => p.MenuID == m.MenuID) == null){
+                    <label style="color:red;">Tidak</label>   
+                }else{
+                    <label style="color:blue;"><b>Ya</b></label>   
+                }
+            </td>
+        </tr>
+                foreach (Web.Models.Menu c in children)
+                {
+            <tr>
+                <td>@m.Text</td>
+                <td>@c.Text</td>
+                <td>
+                    @if(RoleMenus.Find(p => p.MenuID == c.MenuID) == null){
+                        <label style="color:red;">Tidak</label>   
+                    }else{
+                        <label style="color:blue;"><b>Ya</b></label>   
+                    }
+                </td>
+            </tr>
+        }
+    }
+}
+</table>
+<script>
+    function rolechange() {
+        //$("#editlink").attr("href", "/RoleMenu/Edit?roleName=" + $("#selrole").val());
+        document.location.href = "/RoleMenu/Index?roleName=" + $("#selrole").val();
+    }
+</script>

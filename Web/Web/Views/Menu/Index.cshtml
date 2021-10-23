@@ -1,0 +1,69 @@
+﻿@model IEnumerable<Web.Models.Menu>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table>
+    <tr>
+        <th>
+            MenuID
+        </th>
+        <th>
+            ParentID
+        </th>
+        <th>
+            Text
+        </th>
+        <th>
+            Controller
+        </th>
+        <th>
+            Action
+        </th>
+        <th>
+            Params
+        </th>
+        <th>
+            Keterangan
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.MenuID)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.ParentID)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Text)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Controller)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Action)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Params)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Keterangan)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.MenuID }) |
+            @Html.ActionLink("Details", "Details", new { id=item.MenuID }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.MenuID })
+        </td>
+    </tr>
+}
+
+</table>

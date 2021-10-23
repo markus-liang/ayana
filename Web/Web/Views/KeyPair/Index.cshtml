@@ -1,0 +1,39 @@
+﻿@model IEnumerable<Web.Models.KeyPair>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table>
+    <tr>
+        <th>
+            KeyPairID
+        </th>
+        <th>
+            Value
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.KeyPairID)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Value)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.KeyPairID }) |
+            @Html.ActionLink("Details", "Details", new { id=item.KeyPairID }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.KeyPairID })
+        </td>
+    </tr>
+}
+
+</table>

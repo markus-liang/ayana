@@ -1,0 +1,170 @@
+﻿@model IEnumerable<Web.Models.Barang>
+
+@{
+    ViewBag.Title = "Barang";
+    int numofdata = (int)ViewBag.NUM_OF_DATA;
+    int numofpage = (int)ViewBag.NUM_OF_PAGE;
+    int curpage = (int)ViewBag.CUR_PAGE;
+    int start = (int)ViewBag.START;
+    int end = (int)ViewBag.END;
+    string filter = ViewBag.FILTER;
+}
+
+<h2>Daftar Barang</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create", new { }, new { @class="layer" }) &nbsp;&nbsp;&nbsp;
+    <a href="javascript:toExcel()">Export to Excel</a>
+</p>
+<table style="width:100%;">
+    <tr>
+        <td colspan="12">
+            <table style="width:100%;border:0px;">
+                <tr>
+                    <td style="width:150px;border:0px;"><input type="text" id="keyword" placeholder="kata kunci" value="@filter" style="display:inline-block;width:100px;" />&nbsp;<input type="button" onclick="search_click()" class="layer" value="Cari" style="display:inline-block;" />
+                    </td>
+                    <td style="text-align:center;border:0px;">
+                        @for (int i = 1; i <= numofpage; i++)
+                        {
+                            if(i == curpage){
+                                @Html.ActionLink("[ " + i + " ]", "Index", new { @page = i, filter = @filter }, new { @style="text-decoration:none;background-color:#a6e2a6;", @class="layer" });
+                            }else{
+                                @Html.ActionLink("[ " + i + " ]", "Index", new { @page = i, filter = @filter }, new { @style = "text-decoration:none;", @class="layer" });
+                            }
+                        }
+                    </td>
+                    <td style="width:150px;text-align:right;border:0px;">@start - @end dari @numofdata</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <th>
+            Jenis
+        </th>
+        <th>
+            Lokasi
+        </th>
+        <th>
+            Nama
+        </th>
+        <th>
+            Qty
+        </th>
+        <th style="width:70px;">
+            Harga Beli
+        </th>
+        <th style="width:70px;">
+            Harga Rataan
+        </th>
+        <th style="width:70px;">
+            Harga Grosir
+        </th>
+        <th style="width:70px;">
+            Harga Eceran Minimum
+        </th>
+        <th style="width:70px;">
+            Harga Eceran Tertulis
+        </th>
+        <th>
+            Keterangan
+        </th>
+        <th style="width:20px;">
+            Non-Aktif
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.JenisBarang.Nama)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Lokasi.Nama)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Nama)
+        </td>
+        <td class="display_numeric">
+            @Html.DisplayFor(modelItem => item.Qty)
+        </td>
+        <td class="display_numeric">
+            @Html.DisplayFor(modelItem => item.HargaBeli)
+        </td>
+        <td class="display_numeric">
+            @{string rataan = item.HargaRataan.ToString("0.00");}
+            @rataan &nbsp;
+        </td>
+        <td class="display_numeric">
+            @Html.DisplayFor(modelItem => item.HargaGrosir)
+        </td>
+        <td class="display_numeric">
+            @Html.DisplayFor(modelItem => item.HargaMinimum)
+        </td>
+        <td class="display_numeric">
+            @Html.DisplayFor(modelItem => item.HargaPriceList)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Keterangan)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.IsNonAktif)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.BarangID, return_page=curpage }, new { @class="layer" })
+        </td>
+    </tr>
+}
+    <tr>
+        <td colspan="12">
+            <table style="width:100%;border:0px;">
+                <tr>
+                    <td style="text-align:center;border:0px;">
+                        @for (int i = 1; i <= numofpage; i++)
+                        {
+                            if(i == curpage){
+                                @Html.ActionLink("[ " + i + " ]", "Index", new { @page = i, filter = @filter }, new { @style = "text-decoration:none;background-color:#a6e2a6;", @class="layer"  });
+                            }else{
+                                @Html.ActionLink("[ " + i + " ]", "Index", new { @page = i, filter = @filter }, new { @style = "text-decoration:none;", @class="layer" });
+                            }
+                        }
+                    </td>
+                    <td style="width:150px;text-align:right;border:0px;">@start - @end dari @numofdata</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+<script>
+    function toExcel() {
+        var result = function_chromium.ShowSaveDialog().split('|');
+        if (result[0] == "OK") {
+            $("#blocking_layer").show();
+            $.ajax({
+                type : "POST",
+                url  : "@Url.Content("~/Barang/ToExcel")",
+                data : {"filename":result[1]},
+                success: 
+                    function (data) {
+                        if (data == "OK") {
+                            alert("Berhasil melakukan export data barang.");
+                        } else {
+                            alert(data);
+                        }
+                        $("#blocking_layer").hide();
+                    },
+                error:
+                    function (data) {
+                        $("#blocking_layer").hide();
+                    }
+            });
+        }
+    }
+
+    function search_click() {
+        var key = $("#keyword").val();
+        window.location = "/Barang?page=1&filter=" + key;
+    }
+</script>

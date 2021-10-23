@@ -1,0 +1,208 @@
+﻿@model Web.Models.ReturPembelian
+
+@{
+    ViewBag.Title = "Retur Pembelian";
+}
+
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+
+<script>
+    var row_cnt = 0;
+    function add_faktur()
+    {
+        var faktur = $("#input_faktur").val().trim();
+        $.ajax({
+            url: "/Pembelian/GetPembelianDetailByFaktur?FakturID=" + faktur,
+            contentType: 'application/json; charset=utf-8',
+            success: function (data) {
+                if ($("[name='bljrow_" + faktur + "']").length > 0) {
+                    $("#span_msg").html("Tidak dapat memasukkan nomor faktur yang sama.");
+                } else if (data.status != "OK") {
+                    $("#span_msg").html(data.message);
+                } else if (data.list.length == 0) {
+                    $("#span_msg").html("Nomor faktur tidak valid.");
+                }
+                else {
+                    var existing_klien = $("[id^='klien_']");
+                    var new_klien = data.list[0].ClientID;
+                    if (existing_klien.length > 0 && existing_klien[0].value != new_klien) {
+                        $("#span_msg").html("Tidak dapat memasukkan supplier berbeda.");
+                    } else {
+                        $("#span_msg").html("");
+                        $("#input_faktur").val("");
+                        var str_faktur = "";
+                        for (var i = 0; i < 6 - ("" + faktur).length; i++) {
+                            str_faktur += "0";
+                        }
+                        str_faktur += faktur;
+
+                        for (var i = 0; i < data.list.length; i++) {
+                            $("#belanjaan tbody").append(
+                                "<tr name='bljrow_" + faktur + "'>" +
+                                "<td>" +
+                                    "<input type='hidden' id='faktur_" + row_cnt + "' name='faktur_" + row_cnt + "' value='" + data.list[i].FakturID + "' />" +
+                                    str_faktur +
+                                "</td>" +
+                                "<td>" +
+                                    "<input type='hidden' id='klien_" + row_cnt + "' name='klien_" + row_cnt + "' value='" + data.list[i].ClientID + "' />" +
+                                    data.list[i].NamaKlien +
+                                "</td>" +
+                                "<td>" +
+                                    "<input type='hidden' id='status_" + row_cnt + "' name='status_" + row_cnt + "' value='" + data.list[i].isLunas + "' />" +
+                                    (data.list[i].isLunas == true ? "Sudah Dibayar" : "Blm Dibayar") +
+                                "</td>" +
+                                "<td>" +
+                                    "<input type='hidden' id='barang_" + row_cnt + "' name='barang_" + row_cnt + "' value='" + data.list[i].BarangID + "' />" +
+                                    data.list[i].Nama +
+                                "</td>" +
+                                "<td><input id='jumlah_" + row_cnt + "' name='jumlah_" + row_cnt + "' type='number' min='0' max='" + data.list[i].Jumlah + "' value='0' style='width:100px;' onchange='calculate_harga(" + row_cnt + ")' /> / " + data.list[i].Jumlah + "</td>" +
+                                "<td>" +
+                                    "<input type='hidden' id='harga_" + row_cnt + "'  name='harga_" + row_cnt + "' value='" + data.list[i].Harga + "'/>" +
+                                    "<div class='display_numeric'>" + numberWithCommas(data.list[i].Harga) + "</div>" +
+                                "</td>" +
+                                "<td><div   id='subtotal_" + row_cnt + "' name='subtotal_" + row_cnt + "' class='display_numeric'>0</div></td>" +
+                                "<td>" +
+                                    (i == 0 ? "<a href='javascript:void(0);' tabindex='1' onclick='remove_faktur(" + faktur + ")'>hapus</a>" : "") +
+                                "</td>" +
+                                "</tr>"
+                            );
+                            row_cnt++;
+                        }
+                        $("#hid_row_cnt").val(row_cnt);
+                        $("#belanjaan tbody").append("<tr name='bljrow_" + faktur + "'><td colspan='6'>&nbsp;</td></tr>");
+                    }
+                }
+                $("#blocking_layer").hide();
+            }
+        }).done(function () { });
+    }
+
+    function remove_faktur(no_faktur) {
+        $("[name='bljrow_" + no_faktur + "']").remove();
+        calculate_total();
+    }
+
+    function calculate_harga(rownum) {
+        // 1 baris
+        var isLunas = $("#status_" + rownum).val() == "true";
+
+        //if (isLunas) {
+            var jml = $("#jumlah_" + rownum).val();
+            var harga = $("#harga_" + rownum).val() * jml;
+            $("#subtotal_" + rownum).text(numberWithCommas(harga + ""));
+
+            calculate_total();
+        //}
+    }
+
+    function calculate_total() {
+        var list_subtotal = $("[id^='subtotal_']");
+        var total = 0;
+        for (var i = 0; i < list_subtotal.length; i++) {
+            total += (1 * numberWithoutCommas(list_subtotal[i].innerText));
+        }
+        $("#label_total").text(numberWithCommas(total));
+        $("#Total").val(total);
+    }
+
+    function submit_click() {
+        if ($("#Keterangan").val().trim() == "") {
+            alert("Belum mengisi keterangan.");
+            return;
+        }
+
+        var inputs = $("input[type='number']");
+        if (inputs.length == 0) {
+            alert("Silahkan masukkan faktur.");
+            return;
+        }
+        var isretur = false;
+        for (var i = 0; i < inputs.length; i++) {
+            if (inputs[i].value > 0) {
+                isretur = true;
+                break;
+            }
+        }
+        if (!isretur) {
+            alert("Tidak ada barang yang diretur.");
+            return;
+        }
+
+        $("#btn_submit").click();
+    }
+
+    $(function () {
+        $("#Total").val("0");
+    });
+</script>
+
+@using (Html.BeginForm()) {
+    @Html.ValidationSummary(true)
+    <fieldset>
+        <legend>Retur Pembelian</legend>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Keterangan)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Keterangan)
+            @Html.ValidationMessageFor(model => model.Keterangan)
+        </div>
+
+        <div class="editor-label">
+            Daftar Belanja
+        </div>
+        <div>
+           <table id="belanjaan" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>No Faktur</th>
+                        <th>Supplier</th>
+                        <th>Status</th>
+                        <th>Barang</th>
+                        <th>Jumlah</th>
+                        <th>Harga</th>
+                        <th>Subtotal</th>
+                        <th>&nbsp;</th>
+                     </tr>
+                </thead>
+                <tbody>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="6" style="text-align:right;">
+                            <div class="editor-label">
+                                @Html.LabelFor(model => model.Total)
+                            </div>
+                        </td>
+                        <td>
+                            <div class="editor-field">
+                                <div id="label_total" class="display_numeric">0</div>
+                                @Html.TextBoxFor(model => model.Total, new { @class="numeric", @readonly="readonly", @style="background-color:rgb(235, 235, 228);display:none;" })
+                                @Html.ValidationMessageFor(model => model.Total)
+                            </div>
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td colspan="8" style="text-align:right;">
+                            <span id="span_msg" style="color:red;"></span>
+                            <input type="text" id="input_faktur" name="input_faktur" placeholder="Input nomor faktur" />
+                            <input type="button" onclick="add_faktur();" value="Tambah Faktur" class="layer" />
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <p>
+            <input type="hidden" id="hid_row_cnt" name="hid_row_cnt" value="0" />
+            <input type="button" value="Submit" onclick="submit_click()" />
+            <input type="submit" id="btn_submit" value="Create" style="display:none;" class="layer" />
+        </p>
+    </fieldset>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index", new { page = 1 })
+</div>

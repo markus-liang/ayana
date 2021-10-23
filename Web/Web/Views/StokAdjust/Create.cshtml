@@ -1,0 +1,227 @@
+﻿@model Web.Models.StokAdjust
+
+@{
+    ViewBag.Title = "Stock Adjust";
+    var Barangs = ViewBag.Barangs;
+}
+
+<h2>Stock Adjust</h2>
+
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery-ui-1.8.20.min.js")" type="text/javascript"></script>
+<link href="@Url.Content("~/Content/themes/base/jquery.ui.all.css")" rel="stylesheet" type="text/css" />
+
+<script>
+    var barangfocused = "";
+    var cnt_barang = 0;
+    var deletedrowindex = new Array();
+    var listoptionbarang = new Array();
+    var listbarang = new Array();
+
+    function real_change(id) {
+        var real = $("#real_" + id).val();
+        var qty = $("#qty_" + id).val();
+        $("#selisih_" + id).val(real-qty);
+    }
+
+    @for (int i = 0; i < @Barangs.Length; i++)
+    {
+        <text>
+        var option = document.createElement('option');
+            option.value = @Barangs[i].BarangID;
+            option.innerHTML = "@Barangs[i].Nama";
+        listoptionbarang[@i] = option;
+            
+        listbarang[@i] = { 
+            BarangID : @Barangs[i].BarangID,
+                    Nama : "@Barangs[i].Nama",
+                    HargaBeli : "@Barangs[i].HargaBeli",
+                    HargaGrosir : @Barangs[i].HargaGrosir,
+                    HargaMinimum : @Barangs[i].HargaMinimum,
+                    HargaPriceList : @Barangs[i].HargaPriceList,
+                    Qty : @Barangs[i].Qty
+                    };
+        </text>
+    }
+
+    function filter_change(){
+        var rownum = barangfocused.split('_')[1];
+        var filterstr = $('#filter_text').val();
+        $("#filter_result").empty();
+        $("#filter_result").append($(listoptionbarang).filter(":contains('" + filterstr + "')"));
+        
+        $("#btn_filter_ok").prop("disabled", $("#filter_result>option").length == 0);
+    }
+
+    function filter_ok(){
+        var rownum = barangfocused.split('_')[1];
+        $("#" + barangfocused).val($("#filter_result").val());
+        change_stok(rownum);
+        $('#filter_dialog').dialog('close');
+    }
+
+    function myKeyDown(e){
+        if(e.keyIdentifier == "F2")
+        {
+            barangfocused = e.srcElement.id;
+            $('#filter_text').val('');
+            $("#filter_result").empty();
+            $("#btn_filter_ok").prop("disabled", true);
+            filter_change();
+            $('#filter_dialog').dialog('open');
+        }
+        //return false;
+    }
+
+    function change_stok(rownum){
+        var barang;
+
+        var id = $("#stokkode_" + rownum).val();
+        barang  = $.grep(listbarang, function(e){ return e.BarangID == id });
+
+        if(barang.length > 0){
+            $("#stokbarang_" + rownum).val(barang[0].Nama);
+            $("#qty_" + rownum).val(barang[0].Qty);
+            $("#real_" + rownum).val(barang[0].Qty);
+            $("#selisih_" + rownum).val(0);
+        }else{
+            $("#stokbarang_" + rownum).val("");
+            $("#qty_" + rownum).val(0);
+            $("#real_" + rownum).val(0);
+            $("#selisih_" + rownum).val(0);        
+        }
+    }
+
+    function tambah_click(){
+        $("#tbarang tbody").append(
+            "<tr id='stokrow_" + cnt_barang + "'>" +
+                "<td> " +
+                    "<input id='stokkode_" + cnt_barang + "' name='stokkode_" + cnt_barang + "' type='text' placeholder='Kode' style='width:80px;' onkeydown='return myKeyDown(event)' onkeyup='change_stok(" + cnt_barang + ")' /> " +
+                    "<input id='stokbarang_" + cnt_barang + "' name='stokbarang_" + cnt_barang + "' type='text' placeholder='Nama Barang' style='width:300px;' readonly />" +
+                "</td>" +
+                "<td> " +
+                    "<input type='text' id='qty_" + cnt_barang + "' name='qty_" + cnt_barang + "' value='0' readonly='readonly' style='width:100px;background-color:rgb(235, 235, 228);' />" +
+                "</td>" +
+                "<td> " +
+                    "<input type='number' id='real_" + cnt_barang + "' name='real_" + cnt_barang + "' min='0' value='0' onchange='real_change(" + cnt_barang + ")' style='width:100px;' />" +
+                "</td>" +
+                "<td> " +
+                    "<input type='text' id='selisih_" + cnt_barang + "' name='selisih_" + cnt_barang + "' value='0' disabled='disabled' style='width:100px;' />" +
+                "</td>" +            
+                "<td> " +
+                    "<a href='javascript:void(0);' tabindex='1' onclick='remove_stok_row(" + cnt_barang + ")'>hapus</a>" +
+                "</td>" +
+            "</tr>"
+        );
+        $("#stokkode_" + cnt_barang).numeric();
+        $("#stokkode_" + cnt_barang)[0].focus();
+
+        change_stok(cnt_barang);
+
+        cnt_barang++;
+        $("#hid_cnt_barang").val(cnt_barang);
+    }
+
+    function remove_stok_row(id){
+        $("#stokrow_" + id).remove();
+        deletedrowindex[deletedrowindex.length] = id;
+    }
+
+    function submit_click(){
+        rows =  $("#tbarang tbody tr");
+        if($("#Keterangan").val().trim() == "")
+        {
+            alert("Belum mengisi keterangan.");
+            return;
+        }
+        if(rows.length == 0){
+            alert("Tidak ada data barang.");
+            return;
+        }
+        var item1, item2;
+        for (var i=0; i<rows.length - 1; i++){
+            item1 = $("[name^='stokkode']", rows[i])[0].value;
+            for(var j=i+1; j<rows.length; j++){
+                item2 = $("[name^='stokkode']", rows[j])[0].value;
+                if(item1 == item2){
+                    alert("Ada barang yang sama, silahkan periksa kembali.");
+                    return;
+                }
+            }
+        }
+
+        $("#btn_submit").click();
+    }
+
+    $(function(){
+        $('#filter_dialog').dialog({
+            autoOpen: false,
+            draggable: false,
+            resizable: false,
+            width:440,
+            modal: true
+        });
+    });
+</script>
+
+@using (Html.BeginForm()) {
+    @Html.ValidationSummary(true)
+    <fieldset>
+        <legend>StokAdjust</legend>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Keterangan)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Keterangan)
+            @Html.ValidationMessageFor(model => model.Keterangan)
+        </div>
+
+        <div class="editor-label">
+            Daftar Barang
+        </div>
+        <div>
+            <table id="tbarang" style="width:100%;">
+                <thead>
+                    <tr>
+                        <th>Barang</th>
+                        <th>Stok Data</th>
+                        <th>Stok Real</th>
+                        <th>Selisih</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="5" style="text-align:right;">
+                            <input type="button" onclick="tambah_click();" value="Tambah Barang" />
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <p>
+            <input type="hidden" id="hid_cnt_barang" name="hid_cnt_barang" value="0" />
+            <input type="button" value="Create" onclick="submit_click()" />
+            <input type="submit" id="btn_submit" value="Submit" style="display:none;" class="layer" />
+        </p>
+    </fieldset>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index", new { @page=1 }, new { @class="layer" })
+</div>
+
+<div id="filter_dialog">
+    Cari Barang : <input type='text' id='filter_text' style='width:80px;' />
+        <input type="button" value="Cari" onclick="filter_change()" />
+    <br /><br />
+    <label id="filter_number"></label>
+    <select id="filter_result" style="width:400px;" size="20">
+    </select>
+    <br /><br />
+    <input type="button" value="OK" id="btn_filter_ok" onclick="filter_ok()" style="position:relative;width:200px;left:110px;"/>
+</div>

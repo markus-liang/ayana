@@ -1,0 +1,32 @@
+﻿@{
+    ViewBag.Title = "User Listing";
+}
+<p>&nbsp;</p>
+<div class="spacerBody">
+    @Html.ActionLink("Register New User", "Register")
+<h2>User Index</h2>
+
+    <table>
+        @foreach (MembershipUser u in Model)
+        {
+            <tr>
+                <td>
+                    @u.UserName
+                </td>
+                <td>
+                    <!--span onclick="return confirm('Are you sure to delete?')"-->
+                    @if (u.IsApproved && @u.UserName != "administrator")
+                    {
+                        @Html.ActionLink("Deactivate", "UserLock", new { @UN=u.UserName, @V=false }, new { @class="delLink" });
+                    }
+                    else if (!u.IsApproved && @u.UserName != "administrator")
+                    {
+                        @Html.ActionLink("Activate", "UserLock", new { @UN=u.UserName, @V=true }, new { @class = "delLink" });
+                    }
+                    <!--/span-->
+                </td>
+            </tr>
+        }
+    </table>
+
+</div>

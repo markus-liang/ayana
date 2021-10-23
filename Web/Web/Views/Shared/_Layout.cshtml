@@ -1,0 +1,242 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewBag.Title</title>
+    @{
+        /*
+        if(ViewBag.VALID_RESPONSE != "OK"){
+            Response.Write(ViewBag.VALID_RESPONSE);
+            Response.End();
+        }*/
+        
+        List<Web.Models.Menu> USER_MENUS = (List<Web.Models.Menu>)ViewBag.USER_MENUS;
+        string lastmenu = "";
+    }
+    <link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" type="text/css" />
+    <script src="@Url.Content("~/Scripts/jquery-1.7.1.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/jquery.numeric.js")" type="text/javascript"></script>
+
+    <style>
+        .tabelpolos
+        {
+            border: 0px solid black;
+        }
+        .tabelpolos td
+        {
+            border: 0px solid black;
+        }
+        .submenu
+        {
+            -webkit-border-radius: 2px 2px 2px 2px;
+            -moz-border-radius: 2px 2px 2px 2px;
+            border-radius: 2px 2px 2px 2px;
+            background-color:white;
+            margin-bottom:0px;
+            text-align:right;
+            padding-top:4px;
+        }
+        .submenu li
+        {
+            display: inline;
+            list-style: none;
+            padding: 2px 20px 0px 0px;
+        }
+        .submenu ul
+        {
+            margin-bottom:2px;
+            margin-top:0px;
+            line-height:1.5em;
+        }
+        .submenu a
+        {
+            text-decoration:none;
+            font-weight:bold;
+        }
+        .display_numeric
+        {
+            text-align:right;
+        }
+    </style>
+
+    <script>
+        var Months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+        function numberWithCommas(x) {
+            x = x + "";
+            var temp = x.split('.');
+            temp[0] = 1 * temp[0];
+            return temp[0].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + (temp.length > 1 ? "," + temp[1] : "");
+        }
+
+        function numberWithoutCommas(x) {
+            return x.toString().replace(/\D/g, "");
+        }
+
+        ($(function () {
+            $("#menu_master").click(function () {
+                $(".submenu ul").hide();
+                $("#menu_transaksi").css("background-color", "#e8eef4");
+                $("#menu_laporan").css("background-color", "#e8eef4");
+
+                $("#menu_master").css("background-color", "#a6e2a6");
+                $("#sub_master").show();
+            });
+            
+            $("#menu_transaksi").click(function () {
+                $(".submenu ul").hide();
+                $("#menu_master").css("background-color", "#e8eef4");
+                $("#menu_laporan").css("background-color", "#e8eef4");
+
+                $("#menu_transaksi").css("background-color", "#a6e2a6");
+                $("#sub_transaksi").show();
+            });
+
+            $("#menu_laporan").click(function () {
+                $(".submenu ul").hide();
+                $("#menu_master").css("background-color", "#e8eef4");
+                $("#menu_transaksi").css("background-color", "#e8eef4");
+
+                $("#menu_laporan").css("background-color", "#a6e2a6");
+                $("#sub_laporan").show();
+            });
+
+            if (
+                window.location.href.indexOf('/Menu') > 0 ||
+                window.location.href.indexOf('/Account') > 0 ||
+                window.location.href.indexOf('/RoleMenu') > 0 ||
+                window.location.href.indexOf('/Customer') > 0 ||
+                window.location.href.indexOf('/Supplier') > 0 ||
+                window.location.href.indexOf('/JenisBarang') > 0 ||
+                window.location.href.indexOf('/Lokasi') > 0 ||
+                window.location.href.indexOf('/Barang') > 0
+                ) {
+                $("#menu_master").click();
+            } else if (
+                window.location.href.indexOf('/Pembelian') > 0 ||
+                window.location.href.indexOf('/ReturPembelian') > 0 ||
+                window.location.href.indexOf('/Penjualan') > 0 ||
+                window.location.href.indexOf('/ReturPenjualan') > 0 ||
+                window.location.href.indexOf('/KasKecil') > 0
+                ) {
+                $("#menu_transaksi").click();
+            } else {
+                $("#menu_laporan").click();
+            }
+
+            $(".numeric").numeric();
+            var display_numeric = $(".display_numeric");
+            for (var i = 0; i < display_numeric.length; i++) {
+                display_numeric[i].innerText = numberWithCommas(display_numeric[i].innerText);
+            }
+
+            var to_add_blocking_layer = $(".layer");
+            for (var i = 0; i < to_add_blocking_layer.length; i++) {
+                to_add_blocking_layer[i].addEventListener(
+                    'click',
+                    function () {
+                        if (document.forms[0] == undefined) {
+                            $("#blocking_layer").show();
+                        } else {
+                            if ($(document.forms[0]).valid()) {
+                                $("#blocking_layer").show();
+                            }
+                        }
+                    },
+                    false
+                );
+            }
+        }));
+    </script>
+</head>
+<body>
+    <div class="page">
+        <div id="header">
+            <div id="title">
+                <h1>Ayana - Aksesoris Motor Cross</h1>
+            </div>
+            <div id="logindisplay">
+                @Html.Partial("_LogOnPartial")
+            </div>
+            @if (User.Identity.IsAuthenticated)
+            {
+                List<Web.Models.Menu> menu = USER_MENUS.Where(p => p.ParentID == null).ToList();
+                <div id="menucontainer">
+                    <ul id="menu">
+                    @foreach(Web.Models.Menu m in menu){
+                        var id = "menu_" + @m.Keterangan;
+                        <li><a href="#" id="@id">@m.Text</a></li>
+                        lastmenu = id;
+                    }
+                    </ul>
+                </div>
+                <div class="submenu">
+                    @foreach(Web.Models.Menu m in menu){
+                        List<Web.Models.Menu> submenu = USER_MENUS.Where(p => p.ParentID == m.MenuID).ToList();
+                        var id = "sub_" + @m.Keterangan;
+                        <ul id="@id" style="display:none;">
+                            @foreach (Web.Models.Menu n in submenu)
+                            {
+                                <li><a href="/@n.Controller/@n.Action?@n.Params" class="layer">@n.Text</a> </li>
+                            }
+                        </ul>
+                    }
+                </div>
+                <script>
+                    ($(function () {
+                        //console.log('lastmenu : @lastmenu');
+                        //$("#@lastmenu").trigger('click');
+                    }));
+                </script>                
+                <!--div id="menucontainer">
+                    <ul id="menu">
+                        <li><a href="#" id="menu_master">Data Master</a></li>
+                        <li><a href="#" id="menu_transaksi">Transaksi</a></li>
+                        <li><a href="#" id="menu_laporan">Laporan</a></li>
+                    </ul>
+                </div-->
+                <!--div class="submenu">
+                    <ul id="sub_master">
+                        <li>@Html.ActionLink("User", "UserIndex", "Account", new { }, new { @class = "layer" })</li>
+                        <li>@Html.ActionLink("Role", "RoleIndex", "Account", new { }, new { @class = "layer" })</li>
+                        <li>@Html.ActionLink("Role Menu", "Index", "RoleMenu", new { }, new { @class = "layer" })</li>
+                        <li>@Html.ActionLink("Supplier", "Index", "Supplier", new { @page = 1 }, new { @class = "layer" })</li>
+                        <li>@Html.ActionLink("Customer", "Index", "Customer", new { @page = 1 }, new { @class = "layer" })</li>
+                        <li>@Html.ActionLink("Jenis Barang", "Index", "JenisBarang", new { @page = 1 }, new { @class = "layer" })</li>
+                        <li>@Html.ActionLink("Lokasi", "Index", "Lokasi", new { @page = 1 }, new { @class = "layer" })</li>
+                        <li>@Html.ActionLink("Barang", "Index", "Barang", new { @page = 1 }, new { @class = "layer" })</li>
+                    </ul>
+                    <ul id="sub_transaksi" style="display:none;">
+                        <li>@Html.ActionLink("Kas kecil", "Index", "KasKecil", new { @page = 1 }, new { @class = "layer" })</li>
+                        <li>@Html.ActionLink("Pembelian", "Index", "Pembelian", new { @page = 1 }, new { @class = "layer" })</li>
+                        <li>@Html.ActionLink("Retur Pembelian", "Index", "ReturPembelian", new { @page = 1 }, new { @class = "layer" })</li>
+                        <li>@Html.ActionLink("Penjualan", "Index", "Penjualan", new { @page = 1 }, new { @class = "layer" })</li>
+                        <li>@Html.ActionLink("Retur Penjualan", "Index", "ReturPenjualan", new { @page = 1 }, new { @class = "layer" })</li>
+                    </ul>
+                    <ul id="sub_laporan" style="display:none;">
+                        <li>@Html.ActionLink("Stock Adjust", "Index", "StokAdjust", new { @page = 1 }, new { @class = "layer" })</li>
+                        <li>@Html.ActionLink("Lap. Mutasi", "Mutasi", "Laporan", new { }, new { @class = "layer" })</li>
+                        <li>@Html.ActionLink("Lap. Periode", "Periode", "Laporan", new { @page = 1 }, new { @class = "layer" })</li>
+                        <li>@Html.ActionLink("Lap. Bulanan", "Bulanan", "Laporan", new { }, new { @class = "layer" })</li>
+                        <li>@Html.ActionLink("Hist. Pembelian", "HistoryPembelian", "Laporan", new { @page = 1 }, new { @class = "layer" })</li>
+                        <li>@Html.ActionLink("Hist. Retur Pembelian", "HistoryReturPembelian", "Laporan", new { @page = 1 }, new { @class = "layer" })</li>
+                        <li>@Html.ActionLink("Hist. Penjualan", "HistoryPenjualan", "Laporan", new { @page = 1 }, new { @class = "layer" })</li>
+                        <li>@Html.ActionLink("Hist. Retur Penjualan", "HistoryReturPenjualan", "Laporan", new { @page = 1 }, new { @class = "layer" })</li>
+                    </ul>
+                </div-->
+            }
+            else
+            {
+                <div id="menucontainer">
+                    <ul id="menu"></ul>
+                </div>
+            }
+        </div>
+        <div id="main">
+            @RenderBody()
+        </div>
+        <div id="footer">
+        </div>
+    </div>
+    <div id="blocking_layer" style="position:fixed;top:0px;left:0px;bottom:0px;right:0px;background-color:black;opacity:0.4;z-index:999;display:none;"></div>
+</body>
+</html>

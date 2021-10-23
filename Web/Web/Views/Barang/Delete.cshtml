@@ -1,0 +1,68 @@
+﻿@model Web.Models.Barang
+
+@{
+    ViewBag.Title = "Delete";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<fieldset>
+    <legend>Barang</legend>
+
+    <div class="display-label">JenisBarang</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.JenisBarang.Nama)
+    </div>
+
+    <div class="display-label">Lokasi</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Lokasi.Nama)
+    </div>
+
+    <div class="display-label">Nama</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Nama)
+    </div>
+
+    <div class="display-label">Qty</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Qty)
+    </div>
+
+    <div class="display-label">HargaBeli</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.HargaBeli)
+    </div>
+
+    <div class="display-label">HargaRataan</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.HargaRataan)
+    </div>
+
+    <div class="display-label">HargaGrosir</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.HargaGrosir)
+    </div>
+
+    <div class="display-label">HargaMinimum</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.HargaMinimum)
+    </div>
+
+    <div class="display-label">HargaPriceList</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.HargaPriceList)
+    </div>
+
+    <div class="display-label">Keterangan</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Keterangan)
+    </div>
+</fieldset>
+@using (Html.BeginForm()) {
+    <p>
+        <input type="submit" value="Delete" /> |
+        @Html.ActionLink("Back to List", "Index", new { @page = 1 })
+    </p>
+}

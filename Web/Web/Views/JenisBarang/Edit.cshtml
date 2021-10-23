@@ -1,0 +1,44 @@
+﻿@model Web.Models.JenisBarang
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+<h2>Edit</h2>
+
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+
+@using (Html.BeginForm()) {
+    @Html.ValidationSummary(true)
+    <fieldset>
+        <legend>JenisBarang</legend>
+
+         <input type="hidden" name="return_page" value="@ViewBag.ReturnPage" />
+       @Html.HiddenFor(model => model.JenisBarangID)
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Nama)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Nama)
+            @Html.ValidationMessageFor(model => model.Nama)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Keterangan)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Keterangan)
+            @Html.ValidationMessageFor(model => model.Keterangan)
+        </div>
+
+        <p>
+            <input type="submit" value="Save" class="layer" />
+        </p>
+    </fieldset>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index", new { @page=ViewBag.ReturnPage }, new { @class="layer" })
+</div>

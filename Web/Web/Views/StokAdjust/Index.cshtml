@@ -1,0 +1,44 @@
+﻿@model IEnumerable<Web.Models.StokAdjust>
+
+@{
+    ViewBag.Title = "Stock Adjust";
+}
+
+<h2>Daftar Stock Adjust</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create", new { }, new { @class="layer" })
+</p>
+<table>
+    <tr>
+        <th>
+            Tanggal
+        </th>
+        <th>
+            Username
+        </th>
+        <th>
+            Keterangan
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Tanggal)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Username)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Keterangan)
+        </td>
+        <td>
+            @Html.ActionLink("Details", "Details", new { id=item.StokAdjustID }, new { @class="layer" }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.StokAdjustID }, new { @class="layer" })
+        </td>
+    </tr>
+}
+
+</table>

@@ -1,0 +1,96 @@
+﻿@{
+    ViewBag.Title = "Day Closing";
+    var KasKecils = ViewBag.Kas;
+    int awal, akhir, pengeluaran, pemasukan, pembelian, pembelian_batal, penjualan, penjualan_batal;
+    awal = akhir = pengeluaran = pemasukan = pembelian = pembelian_batal = penjualan = penjualan_batal = 0;
+    
+    foreach(Web.Models.KasKecil kas in KasKecils){
+        if(kas.Keterangan == Web.Controllers.BaseController.day_opening_string){
+            awal = kas.Total;
+        }else if (kas.Status && kas.JenisKasKecil.Nama == "DEBET"){
+            pemasukan += kas.Total;
+            if(kas.Keterangan.StartsWith(Web.Controllers.BaseController.penjualan_prefix_string))
+            {
+                penjualan += kas.Total;
+            }
+            else if(kas.Keterangan.StartsWith(Web.Controllers.BaseController.pembelian_batal_prefix_string))
+            {
+                pembelian_batal += kas.Total;
+            }
+        }
+        else if (kas.Status && kas.JenisKasKecil.Nama == "KREDIT")
+        {
+            pengeluaran += kas.Total;
+            if (kas.Keterangan.StartsWith(Web.Controllers.BaseController.pembelian_prefix_string))
+            {
+                pembelian += kas.Total;
+            }
+            else if (kas.Keterangan.StartsWith(Web.Controllers.BaseController.penjualan_batal_prefix_string))
+            {
+                penjualan_batal += kas.Total;
+            }            
+        }
+    }
+    akhir = awal + pemasukan - pengeluaran; //pengeluaran nilainya minus, jadi operasi pake +s
+}
+
+<fieldset>
+    <legend>Day Closing</legend>
+
+    <table class="tabelpolos">
+        <tr>
+            <td>Tanggal</td>
+            <td style="width:5px;">:</td>
+            <td>@DateTime.Now.ToString("dd MMM yyyy")</td>
+        </tr>
+        <tr>
+            <td>Kas Awal</td>
+            <td>:</td>
+            <td class="display_numeric">@awal</td>
+        </tr>
+        <tr>
+            <td>Penjualan</td>
+            <td>:</td>
+            <td class="display_numeric">@penjualan</td>
+        </tr>
+        <tr>
+            <td>Penjualan Batal</td>
+            <td>:</td>
+            <td class="display_numeric">@penjualan_batal</td>
+        </tr>
+        <tr>
+            <td>Pembelian</td>
+            <td>:</td>
+            <td class="display_numeric">@pembelian</td>
+        </tr>
+        <tr>
+            <td>Pembelian Batal</td>
+            <td>:</td>
+            <td class="display_numeric">@pembelian_batal</td>
+        </tr>
+        <tr>
+            <td>Total Pemasukan</td>
+            <td>:</td>
+            <td class="display_numeric">@pemasukan</td>
+        </tr>
+        <tr>
+            <td>Total Pengeluaran</td>
+            <td>:</td>
+            <td class="display_numeric">@pengeluaran</td>
+        </tr>
+        <tr>
+            <td>Kas Akhir</td>
+            <td>:</td>
+            <td class="display_numeric">@akhir</td>
+        </tr>
+    </table>
+
+@using (Html.BeginForm("DayClosingConfirmed", "KasKecil")) {
+    <p>
+        <input type="submit" value="Closing" class="layer" />
+    </p>
+}
+</fieldset>
+<p>
+    @Html.ActionLink("Back to List", "Index", new { @page = 1 }, new { @class="layer" })
+</p>

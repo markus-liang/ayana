@@ -1,0 +1,43 @@
+﻿@model IEnumerable<Web.Models.Hutang>
+
+@{
+    ViewBag.Title = "Mutasi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+
+@using (Html.BeginForm())
+{
+    @Html.ValidationSummary(true)
+    <fieldset>
+        <legend>Daftar Hutang</legend>
+        <br />
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Supplier</th>
+                    <th>Nilai</th>
+                    <th>Faktur</th>
+                    <th>Jatuh Tempo</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(Web.Models.Hutang hutang in Model)
+                {
+                    bool is_telat = hutang.JatuhTempo.Date < DateTime.Now.Date;
+                    string style = is_telat ? "style=color:red;" : "";
+                    <tr>
+                        <td>@hutang.Supplier.Nama</td>
+                        <td class="display_numeric">@hutang.Total</td>
+                        <td>@hutang.PembelianID.ToString().PadLeft(6, '0')</td>
+                        <td @style>@hutang.JatuhTempo.ToString("dd MMM yyyy")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </fieldset>
+}

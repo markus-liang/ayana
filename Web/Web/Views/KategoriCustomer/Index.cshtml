@@ -1,0 +1,37 @@
+﻿@model IEnumerable<Web.Models.KategoriCustomer>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Daftar Kategori Customer</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table>
+    <tr>
+        <th>
+            Nama
+        </th>
+        <th>
+            Keterangan
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Nama)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Keterangan)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.KategoriCustomerID })
+        </td>
+    </tr>
+}
+
+</table>

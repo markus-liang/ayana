@@ -1,0 +1,60 @@
+﻿@model Web.Models.RoleMenu
+
+@{
+    ViewBag.Title = "Edit";
+    string selectedRole = (string)ViewBag.selectedRole;
+    List<Web.Models.Menu> Menus = (List<Web.Models.Menu>)ViewBag.Menus;
+    List<Web.Models.RoleMenu> RoleMenus = (List<Web.Models.RoleMenu>)ViewBag.RoleMenus;
+}
+
+<h2>Edit - @selectedRole</h2>
+<form method="post">
+    <input name="roleName" type="hidden" value="@selectedRole" />
+    <table>
+        <tr>
+            <th>Menu</th>
+            <th>Submenu</th>
+            <th>Is Authorized</th>
+        </tr>
+
+        @if(selectedRole != ""){
+            foreach (Web.Models.Menu m in Menus) {
+                List<Web.Models.Menu> children = m.getChildren(m.MenuID);
+                <tr>
+                    <td>@m.Text</td>
+                    <td>&nbsp;</td>
+                    <td align="center">
+                        @if(RoleMenus.Find(p => p.MenuID == m.MenuID) == null){
+                            <input name="@m.MenuID" type="checkbox" />
+                        }else{
+                            <input name="@m.MenuID" type="checkbox" checked/>
+                        }
+                    </td>
+                </tr>
+                        foreach (Web.Models.Menu c in children)
+                        {
+                    <tr>
+                        <td>@m.Text</td>
+                        <td>@c.Text</td>
+                        <td align="center">
+                            @if(RoleMenus.Find(p => p.MenuID == c.MenuID) == null){
+                                <input name="@c.MenuID" type="checkbox" />
+                            }else{
+                                <input name="@c.MenuID" type="checkbox" checked/>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+        }
+        <tr>
+            <td colspan="2"></td>
+            <td align="right"><input type="submit" value="Save" style="width:100%" /></td>
+        </tr>
+    </table>
+
+</form>
+<br /><br />
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>

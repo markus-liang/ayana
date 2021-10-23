@@ -1,0 +1,104 @@
+﻿@model IEnumerable<Web.Models.Customer>
+
+@{
+    ViewBag.Title = "Customer";
+    int numofdata = (int)ViewBag.NUM_OF_DATA;
+    int numofpage = (int)ViewBag.NUM_OF_PAGE;
+    int curpage = (int)ViewBag.CUR_PAGE;
+    int start = (int)ViewBag.START;
+    int end = (int)ViewBag.END;
+}
+
+<h2>Daftar Customer</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create", new { }, new { @class="layer" })
+</p>
+<table>
+    <tr>
+        <td colspan="7">
+            <table style="width:100%;border:0px;">
+                <tr>
+                    <td style="text-align:center;border:0px;">
+                        @for (int i = 1; i <= numofpage; i++)
+                        {
+                            if(i == curpage){
+                                @Html.ActionLink("[ " + i + " ]", "Index", new { @page = i }, new { @style="text-decoration:none;background-color:#a6e2a6;", @class="layer" });
+                            }else{
+                                @Html.ActionLink("[ " + i + " ]", "Index", new { @page = i }, new { @style = "text-decoration:none;", @class="layer"  });
+                            }
+                        }
+                    </td>
+                    <td style="width:150px;text-align:right;border:0px;">@start - @end dari @numofdata</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <th>
+            Nama
+        </th>
+        <th>
+            Alamat
+        </th>
+        <th>
+            Telepon
+        </th>
+        <th>
+            KategoriCustomer
+        </th>
+        <th>
+            ToP (hari)
+        </th>
+        <th>
+            Keterangan
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Nama)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Alamat)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Telepon)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.KategoriCustomer.Nama)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.ToP)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Keterangan)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.CustomerID, return_page=curpage }, new { @class="layer" })
+        </td>
+    </tr>
+}
+    <tr>
+        <td colspan="7">
+            <table style="width:100%;border:0px;">
+                <tr>
+                    <td style="text-align:center;border:0px;">
+                        @for (int i = 1; i <= numofpage; i++)
+                        {
+                            if(i == curpage){
+                                @Html.ActionLink("[ " + i + " ]", "Index", new { @page = i }, new { @style="text-decoration:none;background-color:#a6e2a6;", @class="layer" });
+                            }else{
+                                @Html.ActionLink("[ " + i + " ]", "Index", new { @page = i }, new { @style = "text-decoration:none;", @class="layer"  });
+                            }
+                        }
+                    </td>
+                    <td style="width:150px;text-align:right;border:0px;">@start - @end dari @numofdata</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+
+</table>

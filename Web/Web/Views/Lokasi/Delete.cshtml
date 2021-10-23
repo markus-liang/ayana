@@ -1,0 +1,28 @@
+﻿@model Web.Models.Lokasi
+
+@{
+    ViewBag.Title = "Delete";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<fieldset>
+    <legend>Lokasi</legend>
+
+    <div class="display-label">Nama</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Nama)
+    </div>
+
+    <div class="display-label">Keterangan</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Keterangan)
+    </div>
+</fieldset>
+@using (Html.BeginForm()) {
+    <p>
+        <input type="submit" value="Delete" /> |
+        @Html.ActionLink("Back to List", "Index")
+    </p>
+}

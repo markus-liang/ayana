@@ -1,0 +1,63 @@
+﻿@model Web.Models.ReturPenjualan
+
+@{
+    ViewBag.Title = "Detail Retur Penjualan";
+}
+
+<fieldset>
+    <legend>Detail Retur Penjualan</legend>
+
+    <table class="tabelpolos">
+        <tr>
+            <td>Nomor Retur</td>
+            <td>: @Model.ReturPenjualanID.ToString().PadLeft(6, '0')</td>
+        </tr>
+        <tr>
+            <td>Customer</td>
+            <td>: @Model.Customer.Nama</td>
+        </tr>
+        <tr>
+            <td>@Html.LabelFor(model => model.Tanggal)</td>
+            <td>: @Model.Tanggal.ToString("dd MMM yyyy")</td>
+        </tr>
+        <tr>
+            <td>@Html.LabelFor(model => model.Keterangan)</td>
+            <td>: @Html.DisplayFor(model => model.Keterangan)</td>
+        </tr>
+    </table>
+    <table style="width:70%;">
+        <thead>
+        <tr>
+            <th>Faktur</th>
+            <th>Barang</th>
+            <th>Jumlah</th>
+            <th>Harga</th>
+            <th>Subtotal</th>
+        </tr>
+        </thead>
+        <tbody>
+    @foreach (Web.Models.ReturPenjualanDetail detail in Model.ReturPenjualanDetails)
+    {
+        var subtotal = detail.isPaid ? detail.Jumlah * detail.Harga : 0;
+        <tr>
+            <td>@detail.PenjualanID.ToString().PadLeft(6, '0')</td>
+            <td>@detail.Barang.Nama</td>
+            <td>@detail.Jumlah</td>
+            <td class="display_numeric">@detail.Harga</td>
+            <td class="display_numeric">@subtotal</td>
+        </tr>
+            
+    }
+        </tbody>
+        <tfoot>
+            <tr><td colspan="5">&nbsp;</td></tr>
+            <tr>
+                <td colspan="4" style="text-align:right;"> Total</td>
+                <td class="display_numeric"> @Html.DisplayFor(model => model.Total)</td>
+            </tr>
+        </tfoot>
+    </table>
+</fieldset>
+<p>
+    @Html.ActionLink("Back to List", "HistoryReturPenjualan", new { @page=1 }, new { @class="layer" })
+</p>
